@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>小P 百家樂算牌器（網頁版）</title>
+  <title>小P 百家樂跑分算牌器（網頁版）</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -13,105 +13,108 @@
       line-height: 1.6;
     }
     h1 { font-size: 24px; margin-bottom: 8px; }
-    .card-input { width: 100%; padding: 8px; font-size: 16px; box-sizing: border-box; }
+    .card-input { width: 100%; padding: 8px; font-size: 16px; }
     button {
-      padding: 8px 16px;
-      font-size: 16px; margin-top: 12px; cursor: pointer;
+      padding: 8px 16px; font-size: 16px;
+      margin-top: 12px; cursor: pointer;
     }
     .result-box {
       margin-top: 20px; padding: 12px;
       border: 1px solid #ddd; border-radius: 8px;
       background: #f9f9f9;
     }
-    .suggest {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 16px;
-      padding: 10px;
-      border-radius: 8px;
-    }
+    .suggest { font-size: 20px; font-weight: bold; margin-top: 12px; }
     .blue { color: #007aff; }
     .red { color: #d60000; }
   </style>
 </head>
 <body>
-  <h1>小P 百家樂算牌器（網頁版）</h1>
-  <p>
-    算牌規則：<br>
-    ＋1：4、5、6、7　　－1：A、2、3<br>
-    其他牌（8、9、10、J、Q、K）＝ 0
-  </p>
 
-  <label for="cards">輸入本局的牌（例如：A 4 7 9 2 6）</label>
-  <input id="cards" class="card-input" placeholder="例如：A 4 7 9 2 6" />
+<h1>小P 百家樂跑分算牌器</h1>
 
-  <div>
-    <button onclick="calculateOnce()">計算本局</button>
-    <button onclick="resetTotal()">重置累計</button>
-  </div>
+<p>
+  加一（+1）：4、5、6、7<br>
+  減一（−1）：A / 1、2、3<br>
+  其他牌 = 0
+</p>
 
-  <div class="result-box">
-    <div id="roundResult">本局計數：0</div>
-    <div id="totalResult">累計計數：0</div>
-    <div id="suggestion" class="suggest">建議：－</div>
-  </div>
+<label>輸入本局牌：</label>
+<input id="cards" class="card-input" placeholder="例如：4 5 6 7 2 3" />
 
-  <script>
-    let totalCount = 0;
+<div>
+  <button onclick="calculate()">計算本局</button>
+  <button onclick="resetCount()">重置全部</button>
+</div>
 
-    function calculateOnce() {
-      const input = document.getElementById("cards").value;
-      const cards = parseCards(input);
-      const round = countCards(cards);
+<div class="result-box">
+  <div id="roundResult">本局分數：0</div>
+  <div id="totalResult">累計分數：0</div>
+  <div id="suggestion" class="suggest">建議：－</div>
+</div>
 
-      totalCount += round;
+<script>
+  // 全局：累積總分
+  let totalCount = 0;
 
-      document.getElementById("roundResult").innerText = "本局計數：" + formatSigned(round);
-      document.getElementById("totalResult").innerText = "累計計數：" + formatSigned(totalCount);
-      updateSuggestion(totalCount);
+  function calculate() {
+    const input = document.getElementById("cards").value;
+    const cards = parseCards(input);
+
+    const roundValue = countCards(cards);  // 本局結果
+    totalCount += roundValue;              // 跑分：累計更新
+
+    // 顯示
+    document.getElementById("roundResult").innerText =
+      "本局分數：" + formatSigned(roundValue);
+
+    document.getElementById("totalResult").innerText =
+      "累計分數：" + formatSigned(totalCount);
+
+    updateSuggestion(totalCount);
+  }
+
+  function parseCards(str) {
+    return str
+      .split(/[\s,，]+/)
+      .map(s => s.trim().toUpperCase())
+      .filter(s => s.length > 0);
+  }
+
+  function countCards(cards) {
+    let n = 0;
+    for (const c of cards) {
+      if (c === "A" || c === "1" || c === "2" || c === "3") n -= 1;
+      else if (c === "4" || c === "5" || c === "6" || c === "7") n += 1;
     }
+    return n;
+  }
 
-    function parseCards(str) {
-      return str
-        .split(/[\s,，]+/)
-        .map(s => s.trim().toUpperCase())
-        .filter(s => s.length > 0);
+  function updateSuggestion(total) {
+    const sug = document.getElementById("suggestion");
+
+    if (total > 0) {
+      sug.innerHTML = "建議下注：<span class='blue'>閒</span>";
+    } else if (total < 0) {
+      sug.innerHTML = "建議下注：<span class='red'>莊</span>";
+    } else {
+      sug.innerHTML = "建議：中性，不下注";
     }
+  }
 
-    function countCards(cards) {
-      let n = 0;
-      for (const c of cards) {
-        if (c === "A" || c === "1" || c === "2" || c === "3") n -= 1;
-        else if (c === "4" || c === "5" || c === "6" || c === "7") n += 1;
-      }
-      return n;
-    }
+  function formatSigned(num) {
+    if (num > 0) return "+" + num;
+    if (num < 0) return num;
+    return "0";
+  }
 
-    function formatSigned(num) {
-      if (num > 0) return "+" + num;
-      if (num < 0) return num.toString();
-      return "0";
-    }
+  function resetCount() {
+    totalCount = 0;
+    document.getElementById("roundResult").innerText = "本局分數：0";
+    document.getElementById("totalResult").innerText = "累計分數：0";
+    document.getElementById("suggestion").innerText = "建議：－";
+    document.getElementById("cards").value = "";
+  }
+</script>
 
-    function updateSuggestion(total) {
-      const sug = document.getElementById("suggestion");
-
-      if (total > 0) {
-        sug.innerHTML = "建議下注：<span class='blue'>閒</span>";
-      } else if (total < 0) {
-        sug.innerHTML = "建議下注：<span class='red'>莊</span>";
-      } else {
-        sug.innerHTML = "建議：中性，不下注";
-      }
-    }
-
-    function resetTotal() {
-      totalCount = 0;
-      document.getElementById("roundResult").innerText = "本局計數：0";
-      document.getElementById("totalResult").innerText = "累計計數：0";
-      document.getElementById("cards").value = "";
-      document.getElementById("suggestion").innerText = "建議：－";
-    }
-  </script>
 </body>
 </html>

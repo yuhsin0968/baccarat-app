@@ -26,6 +26,13 @@
     .suggest { font-size: 20px; font-weight: bold; margin-top: 12px; }
     .blue { color: #007aff; }
     .red { color: #d60000; }
+    .note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #666;
+      border-top: 1px dashed #ccc;
+      padding-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -43,6 +50,7 @@
 
 <div>
   <button onclick="calculate()">計算本局</button>
+  <button onclick="clearInput()">清除輸入</button>
   <button onclick="resetCount()">重置全部</button>
 </div>
 
@@ -50,20 +58,24 @@
   <div id="roundResult">本局分數：0</div>
   <div id="totalResult">累計分數：0</div>
   <div id="suggestion" class="suggest">建議：－</div>
+
+  <!-- 🆕 使用方式說明 -->
+  <div class="note">
+    使用方式：請找莊閒平衡差距不超過五顆，開局15-20局。<br>
+    本方法並非100%勝率，所有結果僅供參考，輸贏請自行負責。
+  </div>
 </div>
 
 <script>
-  // 全局：累積總分
   let totalCount = 0;
 
   function calculate() {
     const input = document.getElementById("cards").value;
     const cards = parseCards(input);
 
-    const roundValue = countCards(cards);  // 本局結果
-    totalCount += roundValue;              // 跑分：累計更新
+    const roundValue = countCards(cards);
+    totalCount += roundValue;
 
-    // 顯示
     document.getElementById("roundResult").innerText =
       "本局分數：" + formatSigned(roundValue);
 
@@ -105,6 +117,11 @@
     if (num > 0) return "+" + num;
     if (num < 0) return num;
     return "0";
+  }
+
+  // 只清輸入，不清分數
+  function clearInput() {
+    document.getElementById("cards").value = "";
   }
 
   function resetCount() {

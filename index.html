@@ -3,11 +3,130 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>小P 百家樂測試頁</title>
+  <title>小P 百家樂算牌器（網頁版）</title>
+  <style>
+    /* 簡單排版用，不需要懂 CSS 也沒關係 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 640px;
+      margin: 40px auto;
+      padding: 0 16px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .card-input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
-  <h1>歡迎來到小P百家樂 App 測試頁</h1>
-  <p>這是 GitHub Pages 自動部署的公開測試頁面。</p>
-  <p>你的 Repo：yuhsin0968 / baccarat-app</p>
+  <h1>小P 百家樂算牌器（網頁版）</h1>
+  <p class="small">
+    算牌規則：<br>
+    加一（+1）：4、5、6、7<br>
+    減一（−1）：A、2、3<br>
+    其他牌（8、9、10、J、Q、K）不計分。
+  </p>
+
+  <label for="cards">輸入這一局的牌（用空格或逗號分開，例如：A 4 7 9 2 6）：</label>
+  <input id="cards" class="card-input" placeholder="例如：A 4 7 9 2 6" />
+
+  <div>
+    <button onclick="calculateOnce()">計算本局</button>
+    <button onclick="resetTotal()">重置累計</button>
+  </div>
+
+  <div class="result-box">
+    <div id="roundResult">本局計數：0</div>
+    <div id="totalResult">累計計數：0</div>
+  </div>
+
+  <script>
+    // 全局累計，會一直加上每一局的結果
+    let totalCount = 0;
+
+    // 把單一局的牌串拿來計算分數
+    function calculateOnce() {
+      const input = document.getElementById("cards").value;
+      const cards = parseCards(input);
+      const roundCount = countCards(cards);
+
+      totalCount += roundCount;
+
+      document.getElementById("roundResult").innerText =
+        "本局計數：" + formatSigned(roundCount);
+      document.getElementById("totalResult").innerText =
+        "累計計數：" + formatSigned(totalCount);
+    }
+
+    // 解析字串 → 牌陣列（不分大小寫）
+    function parseCards(str) {
+      // 用空白、逗號、中文逗號都切開
+      return str
+        .split(/[\s,，]+/)
+        .map(s => s.trim().toUpperCase())
+        .filter(s => s.length > 0);
+    }
+
+    // 根據你的公式計算分數
+    function countCards(cards) {
+      let count = 0;
+      for (const c of cards) {
+        // A 視為 A
+        if (c === "A" || c === "1") {
+          count -= 1; // 減一
+        } else if (c === "2" || c === "3") {
+          count -= 1;
+        } else if (c === "4" || c === "5" || c === "6" || c === "7") {
+          count += 1;
+        }
+        // 其他牌 8 9 10 J Q K 都是 0，不處理即可
+      }
+      return count;
+    }
+
+    // 把 0 / 正負數變成好看的字串（+1 / -1）
+    function formatSigned(num) {
+      if (num > 0) return "+" + num;
+      if (num < 0) return num.toString();
+      return "0";
+    }
+
+    // 重置累計
+    function resetTotal() {
+      totalCount = 0;
+      document.getElementById("roundResult").innerText = "本局計數：0";
+      document.getElementById("totalResult").innerText = "累計計數：0";
+      document.getElementById("cards").value = "";
+    }
+  </script>
 </body>
 </html>

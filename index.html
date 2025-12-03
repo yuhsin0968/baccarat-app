@@ -31,6 +31,13 @@
       margin-top: 4px;
     }
 
+    .hint {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
     button {
       padding: 10px 16px;
       font-size: 16px;
@@ -62,7 +69,6 @@
     .blue { color: #007aff; font-weight: bold; }
     .red { color: #d60000; font-weight: bold; }
 
-    /* 使用方式提示框 */
     .note {
       margin-top: 22px;
       font-size: 18px;
@@ -78,7 +84,6 @@
       line-height: 1.8;
       margin-top: 8px;
     }
-
   </style>
 </head>
 
@@ -94,6 +99,9 @@
 
 <label>輸入本局牌：</label>
 <input id="cards" class="card-input" placeholder="例如：4 5 6 7 2 3" />
+
+<!-- 🆕 提示文字 -->
+<div class="hint">請用空格區分每張牌，例如：4 5 7 A 2 6</div>
 
 <div>
   <button class="btn-calc" onclick="calculate()">計算本局</button>
@@ -117,7 +125,7 @@
 </div>
 
 <script>
-  let totalCount = 0;  // 跑分累計
+  let totalCount = 0;
 
   function calculate() {
     const input = document.getElementById("cards").value;
